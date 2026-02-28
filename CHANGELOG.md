@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.3](https://github.com/SolidZORO/test-github-actions-release-version-pages/compare/v1.0.2...v1.0.3) (2026-02-28)
+
+
+### Features
+
+* CI_GITHUB_TOKEN ([aadf8ff](https://github.com/SolidZORO/test-github-actions-release-version-pages/commit/aadf8ff7c3ed44048bf5f4f431e15d2391c97957))
+
 ### [1.0.2](https://github.com/SolidZORO/test-github-actions-release-version-pages/compare/v1.0.1...v1.0.2) (2026-02-28)
 
 
