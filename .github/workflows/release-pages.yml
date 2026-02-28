@@ -1,0 +1,98 @@
+name: Release Pages
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Tag to publish (example: v1.2.3)"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages-release
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Resolve tag
+        run: |
+          INPUT_TAG="${{ github.event.inputs.release_tag }}"
+          REF_TAG="${GITHUB_REF_NAME}"
+          TAG="${INPUT_TAG:-$REF_TAG}"
+
+          if [ -z "$TAG" ]; then
+            echo "Tag is empty. Use workflow_dispatch input `release_tag`."
+            exit 1
+          fi
+
+          if ! echo "$TAG" | grep -Eq '^v[0-9]'; then
+            echo "Tag must start with v (got: $TAG)"
+            exit 1
+          fi
+
+          echo "RELEASE_TAG=$TAG" >> "$GITHUB_ENV"
+          echo "Release tag: $TAG"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build
+        run: yarn build
+
+      - name: Prepare pages files
+        run: |
+          mkdir -p ".pages/releases/${RELEASE_TAG}"
+          cp -R build/. ".pages/releases/${RELEASE_TAG}/"
+
+          rm -rf ".pages/releases/latest"
+          mkdir -p ".pages/releases/latest"
+          cp -R build/. ".pages/releases/latest/"
+
+          cat > .pages/index.html <<'HTML'
+          <!doctype html>
+          <html lang="en">
+            <head>
+              <meta charset="UTF-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+              <title>Release Pages</title>
+            </head>
+            <body>
+              <h1>Release Pages</h1>
+              <p>Latest: <a href="./releases/latest/">./releases/latest/</a></p>
+            </body>
+          </html>
+          HTML
+
+          touch .pages/.nojekyll
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: .pages
+          keep_files: true
+
+      - name: Print URLs
+        run: |
+          echo "Release URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/releases/${RELEASE_TAG}/"
+          echo "Latest URL:  https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/releases/latest/"
