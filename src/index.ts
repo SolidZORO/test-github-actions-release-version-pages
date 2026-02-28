@@ -1,5 +1,5 @@
-const appTitle = document.getElementById("app-title");
-const appMeta = document.getElementById("app-meta");
+const appTitle = document.getElementById('app-title');
+const appMeta = document.getElementById('app-meta');
 
 type VersionMeta = {
   version: string;
@@ -7,17 +7,17 @@ type VersionMeta = {
 };
 
 const FALLBACK_META: VersionMeta = {
-  version: "unknown-version",
-  gitHash: "unknown-hash"
+  version: 'unknown-version',
+  gitHash: 'unknown-hash'
 };
 
 function normalizeMeta(raw: unknown): VersionMeta | null {
-  if (!raw || typeof raw !== "object") return null;
-
+  if (!raw || typeof raw !== 'object') return null;
+  
   const candidate = raw as Partial<VersionMeta>;
-  if (typeof candidate.version !== "string") return null;
-  if (typeof candidate.gitHash !== "string") return null;
-
+  if (typeof candidate.version !== 'string') return null;
+  if (typeof candidate.gitHash !== 'string') return null;
+  
   return {
     version: candidate.version || FALLBACK_META.version,
     gitHash: candidate.gitHash || FALLBACK_META.gitHash
@@ -25,11 +25,11 @@ function normalizeMeta(raw: unknown): VersionMeta | null {
 }
 
 function readMetaFromScriptTag(): VersionMeta | null {
-  const script = document.getElementById("app-version-json");
+  const script = document.getElementById('app-version-json');
   if (!(script instanceof HTMLScriptElement)) return null;
-
+  
   try {
-    return normalizeMeta(JSON.parse(script.textContent ?? ""));
+    return normalizeMeta(JSON.parse(script.textContent ?? ''));
   } catch {
     return null;
   }
@@ -37,9 +37,9 @@ function readMetaFromScriptTag(): VersionMeta | null {
 
 async function readMetaFromFile(): Promise<VersionMeta | null> {
   try {
-    const response = await fetch("./version.json", { cache: "no-store" });
+    const response = await fetch('./version.json', { cache: 'no-store' });
     if (!response.ok) return null;
-
+    
     const raw = (await response.json()) as unknown;
     return normalizeMeta(raw);
   } catch {
@@ -49,13 +49,16 @@ async function readMetaFromFile(): Promise<VersionMeta | null> {
 
 async function render() {
   if (!appTitle || !appMeta) return;
-
+  
   const meta = readMetaFromScriptTag() ?? (await readMetaFromFile()) ?? FALLBACK_META;
   const finalVersion = meta.version;
   const finalHash = meta.gitHash;
-
+  
   appTitle.textContent = `Version ${finalVersion}`;
   appMeta.textContent = `Git hash: ${finalHash}`;
 }
 
 void render();
+
+
+console.log('0xFF02');
