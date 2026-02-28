@@ -51,3 +51,20 @@ yarn push-alltags
 - Output URLs:
   - `/releases/v1.2.3/`
   - `/releases/latest/`
+- GitHub Release body contains:
+  - `/releases/<tag>/` URL
+  - `/releases/latest/` URL
+- GitHub Release assets include:
+  - `CHANGELOG-<tag>.md`
+  - `index_<tag>.html`
+  - `<pkg>_release_<tag>.zip`
+
+### 发布/上传 Upload Release
+
+- 为了上传 Release 附件（zip/html/md），建议使用 PAT：
+  - 创建地址: https://github.com/settings/personal-access-tokens
+  - 权限最小化: `Contents` -> `Read and write`
+- 将 token 配置为仓库 Secret:
+  - `Settings` -> `Secrets and variables` -> `Actions`
+  - 新增 `CI_GITHUB_TOKEN`
+- Workflow 会优先使用 `CI_GITHUB_TOKEN`，未配置时才回退到默认 `GITHUB_TOKEN`。

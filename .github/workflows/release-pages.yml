@@ -50,6 +50,8 @@ jobs:
           fi
 
           echo "RELEASE_TAG=$TAG" >> "$GITHUB_ENV"
+          echo "RELEASE_URL=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/releases/${TAG}/" >> "$GITHUB_ENV"
+          echo "LATEST_URL=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/releases/latest/" >> "$GITHUB_ENV"
           echo "Release tag: $TAG"
 
       - name: Install dependencies
@@ -92,7 +94,39 @@ jobs:
           publish_dir: .pages
           keep_files: true
 
+      - name: Prepare release assets
+        run: |
+          PKG_NAME=$(node -p "require('./package.json').name")
+          PKG_NAME_SAFE=$(echo "$PKG_NAME" | sed 's#[@/]#-#g')
+
+          cp build/index.html "index_${RELEASE_TAG}.html"
+          zip -r "${PKG_NAME_SAFE}_release_${RELEASE_TAG}.zip" build
+
+          cat > "CHANGELOG-${RELEASE_TAG}.md" <<EOF
+          ${RELEASE_TAG} ($(TZ='Asia/Shanghai' date '+%Y-%m-%d'))
+
+          Release URLs
+          - ${RELEASE_URL}
+          - ${LATEST_URL}
+
+          Assets
+          - ${PKG_NAME_SAFE}_release_${RELEASE_TAG}.zip
+          - index_${RELEASE_TAG}.html
+          EOF
+
+      - name: Upload Release
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.CI_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: ${{ env.RELEASE_TAG }}
+          body_path: CHANGELOG-${{ env.RELEASE_TAG }}.md
+          files: |
+            CHANGELOG-${{ env.RELEASE_TAG }}.md
+            index_${{ env.RELEASE_TAG }}.html
+            *_release_${{ env.RELEASE_TAG }}.zip
+
       - name: Print URLs
         run: |
-          echo "Release URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/releases/${RELEASE_TAG}/"
-          echo "Latest URL:  https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/releases/latest/"
+          echo "Release URL: ${RELEASE_URL}"
+          echo "Latest URL:  ${LATEST_URL}"
