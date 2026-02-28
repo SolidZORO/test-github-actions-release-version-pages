@@ -1,0 +1,23 @@
+{
+  "name": "test-github-actions-release-version-pages",
+  "version": "1.0.1",
+  "private": true,
+  "packageManager": "yarn@1.22.22",
+  "scripts": {
+    "build": "tsc && node scripts/generate-version.mjs",
+    "serve": "serve -s build",
+    "-------------------------------- VERSION ----": "----",
+    "__versionup:hotfix__": "e.g. yarn versionup:hotfix 2.71.2-f0",
+    "versionup:hotfix": "standard-version -r",
+    "versionup": "standard-version -r patch",
+    "versionup:minor": "standard-version -r minor",
+    "versionup:major": "standard-version -r major",
+    "versionup:init": "standard-version --first-release",
+    "push-alltags": "git push --follow-tags"
+  },
+  "devDependencies": {
+    "serve": "^14.2.5",
+    "standard-version": "^9.5.0",
+    "typescript": "^5.9.2"
+  }
+}
