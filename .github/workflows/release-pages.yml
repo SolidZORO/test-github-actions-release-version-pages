@@ -50,6 +50,7 @@ jobs:
           fi
 
           echo "RELEASE_TAG=$TAG" >> "$GITHUB_ENV"
+          echo "ROOT_URL=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" >> "$GITHUB_ENV"
           echo "RELEASE_URL=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/releases/${TAG}/" >> "$GITHUB_ENV"
           echo "LATEST_URL=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/releases/latest/" >> "$GITHUB_ENV"
           echo "Release tag: $TAG"
@@ -62,27 +63,15 @@ jobs:
 
       - name: Prepare pages files
         run: |
+          mkdir -p ".pages"
+          cp -R build/. ".pages/"
+
           mkdir -p ".pages/releases/${RELEASE_TAG}"
           cp -R build/. ".pages/releases/${RELEASE_TAG}/"
 
           rm -rf ".pages/releases/latest"
           mkdir -p ".pages/releases/latest"
           cp -R build/. ".pages/releases/latest/"
-
-          cat > .pages/index.html <<'HTML'
-          <!doctype html>
-          <html lang="en">
-            <head>
-              <meta charset="UTF-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-              <title>Release Pages</title>
-            </head>
-            <body>
-              <h1>Release Pages</h1>
-              <p>Latest: <a href="./releases/latest/">./releases/latest/</a></p>
-            </body>
-          </html>
-          HTML
 
           touch .pages/.nojekyll
 
@@ -106,6 +95,7 @@ jobs:
           ${RELEASE_TAG} ($(TZ='Asia/Shanghai' date '+%Y-%m-%d'))
 
           Release URLs
+          - ${ROOT_URL}
           - ${RELEASE_URL}
           - ${LATEST_URL}
 
@@ -128,5 +118,6 @@ jobs:
 
       - name: Print URLs
         run: |
+          echo "Root URL:    ${ROOT_URL}"
           echo "Release URL: ${RELEASE_URL}"
           echo "Latest URL:  ${LATEST_URL}"

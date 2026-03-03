@@ -112,14 +112,17 @@ yarn push-alltags
 
 ### 1) GitHub Pages 地址
 
+- 主地址（默认展示最新版本，无需后缀）：
+  - `https://<owner>.github.io/<repo>/`
 - 指定版本：
   - `https://<owner>.github.io/<repo>/releases/v1.0.3/`
-- 最新版本：
+- latest 兼容地址（与主地址内容一致）：
   - `https://<owner>.github.io/<repo>/releases/latest/`
 
 ### 2) GitHub Release 内容
 
 Release 正文会包含：
+- 主地址（`/`）
 - 当前版本 URL（`/releases/<tag>/`）
 - Latest URL（`/releases/latest/`）
 
